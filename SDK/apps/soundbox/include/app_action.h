@@ -12,6 +12,7 @@
 #define ACTION_APP_MAIN   			0x0001
 
 
+#define APP_NAME_MYAPP                                  "myappptest"
 #define APP_NAME_POWERON								"poweron"
 #define APP_NAME_POWEROFF								"poweroff"
 #define APP_NAME_BT										"bt"

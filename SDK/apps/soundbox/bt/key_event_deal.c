@@ -301,6 +301,13 @@ void key_tws_lr_diff_deal(struct sys_event *event, u8 opt)
 }
 #endif
 
+
+
+extern void audio_adc_mic_demo(u16 sr);
+extern void my_audio_adc_mic_exit(void);
+extern void my_audio_adc_linein_demo();
+extern int my_audio_adc_open_demo(void);
+extern void mytask_create();
 u8 is_tws_key_filter(void);
 int app_earphone_key_event_handler(struct sys_event *event)
 {
@@ -374,12 +381,17 @@ int app_earphone_key_event_handler(struct sys_event *event)
         } else {
             user_send_cmd_prepare(USER_CTRL_AVCTP_OPID_PLAY, 0, NULL);
         }
+        printf("KEY_MUSIC_PP\n");
+        // audio_adc_mic_demo(44100);
+        // my_audio_adc_linein_demo();
+        // my_audio_adc_open_demo();
+        mytask_create();
         break;
     case  KEY_MUSIC_PREV:
 
         r_printf("    KEY_MUSIC_PREV \n");
 
-
+        my_audio_adc_mic_exit();
         user_send_cmd_prepare(USER_CTRL_AVCTP_OPID_PREV, 0, NULL);
         break;
     case  KEY_MUSIC_NEXT:

@@ -181,7 +181,7 @@ static void audio_module_probe(void)
     AUDIO_ENCODER_PROBE(cvsd);
 #endif
 }
-
+extern void my_mic_dev_init();
 void app_charge_box_ctrl_init(void);
 void app_main()
 {
@@ -194,6 +194,8 @@ void app_main()
 
     audio_enc_init();
     audio_dec_init();
+    
+
 
     /* audio_module_probe(); */
 #ifdef CONFIG_UPDATA_ENABLE
@@ -274,6 +276,7 @@ void app_main()
         ui_update_status(STATUS_POWERON);
         app_var.start_time = timer_get_ms();
 
+        //my_mic_dev_init();
         app_task_switch(APP_NAME_POWERON, ACTION_APP_MAIN, NULL);
 
 

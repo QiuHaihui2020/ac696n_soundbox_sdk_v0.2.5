@@ -44,6 +44,7 @@ static struct app_handle g_app_hdl = {0};
 /*此列表用户可以通过配置调整模式切换的顺序*/
 static const char *app_next_list[] = {
     APP_NAME_BT		,
+    APP_NAME_MYAPP  ,
     APP_NAME_MUSIC	,
     APP_NAME_FM		,
     APP_NAME_RECORD	,

@@ -28,14 +28,23 @@ struct ladc_mic_demo *ladc_mic = NULL;
 static REVERB_API_STRUCT *p_reverb_obj = NULL;
 
 extern struct audio_adc_hdl adc_hdl;
+s16 dual_ch_buf[LADC_MIC_IRQ_POINTS * 2];
 
 static void adc_mic_demo_output(void *priv, s16 *data, int len)
 {
     struct audio_adc_hdl *hdl = priv;
-    //putchar('o');
+
+    u16 points = len >> 1;
+    u16 dual_len = len << 1;
+    //printf("[%d-%d-%d]",len,points,dual_len);
+    for (int i = 0; i < points; i++) {
+        dual_ch_buf[2 * i] = data[i];
+        dual_ch_buf[2 * i + 1] = data[i];
+    }
+
     //printf("adc:%x,len:%d",data,len);
-    int wlen = app_audio_output_write(data, len * hdl->channel);
-    if (wlen != len) {
+    int wlen = app_audio_output_write(dual_ch_buf, len * hdl->channel*2);
+    if (wlen != dual_len) {
         //printf("wlen:%d-%d",wlen,len);
     }
 }
@@ -49,6 +58,7 @@ REGISTER_LP_TARGET(mic_demo_lp_target) = {
     .is_idle = mic_demo_idle_query,
 };
 
+extern struct audio_dac_hdl dac_hdl;
 void audio_adc_mic_demo(u16 sr)
 {
     r_printf("audio_adc_mic_open:%d\n", sr);
@@ -59,11 +69,14 @@ void audio_adc_mic_demo(u16 sr)
         audio_adc_mic_set_gain(&ladc_mic->mic_ch, 20);
         audio_adc_mic_set_buffs(&ladc_mic->mic_ch, ladc_mic->adc_buf, LADC_MIC_IRQ_POINTS * 2, LADC_MIC_BUF_NUM);
         ladc_mic->adc_output.handler = adc_mic_demo_output;
+        ladc_mic->adc_output.priv = &adc_hdl;
         audio_adc_add_output_handler(&adc_hdl, &ladc_mic->adc_output);
         audio_adc_mic_start(&ladc_mic->mic_ch);
 
-        app_audio_output_samplerate_set(sr);
-        app_audio_output_start();
+        // app_audio_output_samplerate_set(sr);
+        // app_audio_output_start();
+        audio_dac_set_sample_rate(&dac_hdl, sr);
+        audio_dac_start(&dac_hdl);
     }
 }
 
@@ -96,7 +109,7 @@ void audio_adc_mic_exit(void)
 
 /******************************************************/
 #define LADC_LINEIN_BUF_NUM        2
-#define LADC_LINEIN_CH_NUM         1
+#define LADC_LINEIN_CH_NUM         2
 #define LADC_LINEIN_IRQ_POINTS     256
 #define LADC_LINEIN_BUFS_SIZE      (LADC_LINEIN_CH_NUM * LADC_LINEIN_BUF_NUM * LADC_LINEIN_IRQ_POINTS)
 struct audio_adc_var {
@@ -112,7 +125,7 @@ void audio_adc_linein_demo(void)
     r_printf("audio_adc_linein_demo...");
     ladc_linein = zalloc(sizeof(*ladc_linein));
     if (ladc_linein) {
-        audio_adc_linein_open(&ladc_linein->ch, AUDIO_ADC_LINE0_L, &adc_hdl);
+        audio_adc_linein_open(&ladc_linein->ch, AUDIO_ADC_LINE0_LR, &adc_hdl);
         audio_adc_linein_set_sample_rate(&ladc_linein->ch, ladc_linein_sr);
         audio_adc_linein_set_gain(&ladc_linein->ch, 5);
         printf("adc_buf_size:%d", sizeof(ladc_linein->adc_buf));

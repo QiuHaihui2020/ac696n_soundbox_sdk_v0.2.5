@@ -48,6 +48,7 @@
 #define SYS_PBG_EVENT           0x40
 #define SYS_BT_AI_EVENT 		0x80
 #define SYS_AI_EVENT 		    0x100
+#define SYS_MYTEST_EVENT        0x201
 
 
 
